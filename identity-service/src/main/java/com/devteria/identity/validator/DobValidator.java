@@ -1,7 +1,6 @@
 package com.devteria.identity.validator;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 import jakarta.validation.ConstraintValidator;
@@ -15,7 +14,7 @@ public class DobValidator implements ConstraintValidator<DobConstraint, LocalDat
     public boolean isValid(LocalDate value, ConstraintValidatorContext context) {
         if (Objects.isNull(value)) return true;
 
-        long years = ChronoUnit.YEARS.between(value, LocalDate.now());
+        long years = value.until(LocalDate.now()).getYears();
 
         return years >= min;
     }

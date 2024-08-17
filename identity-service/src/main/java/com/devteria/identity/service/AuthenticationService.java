@@ -2,7 +2,6 @@ package com.devteria.identity.service;
 
 import java.text.ParseException;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.StringJoiner;
 import java.util.UUID;
@@ -127,10 +126,10 @@ public class AuthenticationService {
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getUsername())
-                .issuer("devteria.com")
+                .issuer("vou.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(
-                        Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli()
+                        Instant.now().toEpochMilli() + VALID_DURATION * 1000
                 ))
                 .jwtID(UUID.randomUUID().toString())
                 .claim("scope", buildScope(user))
@@ -156,7 +155,7 @@ public class AuthenticationService {
 
         Date expiryTime = (isRefresh)
                 ? new Date(signedJWT.getJWTClaimsSet().getIssueTime()
-                .toInstant().plus(REFRESHABLE_DURATION, ChronoUnit.SECONDS).toEpochMilli())
+                .getTime() + REFRESHABLE_DURATION * 1000)
                 : signedJWT.getJWTClaimsSet().getExpirationTime();
 
         var verified = signedJWT.verify(verifier);

@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8071
   servlet:
     context-path: /identity
 
@@ -7,10 +7,10 @@ spring:
   application:
     name: identity-service
   datasource:
-    url: "jdbc:mysql://localhost:3306/bookteria_identity"
+    url: "jdbc:mysql://localhost:3306/identity_service?useSSL=false&serverTimezone=UTC"
     driverClassName: "com.mysql.cj.jdbc.Driver"
-    username: root
-    password: root
+    username: springstudent
+    password: springstudent
   jpa:
     hibernate:
       ddl-auto: update

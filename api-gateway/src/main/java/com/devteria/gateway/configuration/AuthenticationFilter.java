@@ -27,6 +27,7 @@ import reactor.netty.http.server.HttpServerResponse;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Component
 @Slf4j
@@ -58,15 +59,28 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         if (CollectionUtils.isEmpty(authHeader))
             return unauthenticated(exchange.getResponse());
 
-        String token = authHeader.getFirst().replace("Bearer ", "");
-        log.info("Token: {}", token);
+        String token;
+        if (authHeader.isEmpty()) {
+            throw new NoSuchElementException();
+        } else {
+            token = authHeader.get(0).replace("Bearer ", "");
+        }
+        // Log the request URI
+        log.info("Request URI: {}", exchange.getRequest().getURI());
 
         return identityService.introspect(token).flatMap(introspectResponse -> {
-            if (introspectResponse.getResult().isValid())
+            log.info("Introspection response: {}", introspectResponse);
+            if (introspectResponse.getResult().isValid()) {
+                log.info("Token is valid, proceeding with request");
                 return chain.filter(exchange);
-            else
+            } else {
+                log.warn("Token is invalid, returning unauthenticated response");
                 return unauthenticated(exchange.getResponse());
-        }).onErrorResume(throwable -> unauthenticated(exchange.getResponse()));
+            }
+        }).onErrorResume(throwable -> {
+            log.error("Error during token introspection: {}", throwable.getMessage());
+            return unauthenticated(exchange.getResponse());
+        });
     }
 
     @Override
